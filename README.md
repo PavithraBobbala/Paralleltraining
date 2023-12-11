@@ -1,7 +1,18 @@
-Goal : The purpose of this individual assignment is to learn how to develop parallel machine learning (ML) applications in Amazon AWS cloud platform. Specifically, you will learn: 
+Goal : The purpose of this individual assignment is to train a machine learning model parallely on ec2 instances for predicting wine quality on a publically available data and then use the trained model to predict the wine quality. 
+Specifically, you will learn: 
 (1) how to use Apache Spark to train an ML model in parallel on multiple EC2 instances; 
 (2) how to use Spark’s MLlib to develop and use an ML model in the cloud; 
 (3) How to use Docker to create a container for your ML model to simplify model deployment
+
+Project also uses Docker to create a container for trained machine learning model to simplify deployments.
+
+This project contains 2 main java source files:
+
+modeltraining.java reads training dataset from S3 and trains model in parallel on EMR spark cluster. Once model is trained, it can be run on provided test data provided via S3. This program stores trained model in S3 bucket 
+
+prediction.java program loads trained model and executes that model on given testdata file. 
+
+Dockerfile: Dockerfile to create docker image and run container for simplified deployment.
 
 
 Description : Building a wine quality prediction ML model in Spark over AWS involves several steps. Below is a high-level outline of the process in Java on Ubuntu Linux:
