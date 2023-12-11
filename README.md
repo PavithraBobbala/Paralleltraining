@@ -15,54 +15,33 @@ prediction.java program loads trained model and executes that model on given tes
 Dockerfile: Dockerfile to create docker image and run container for simplified deployment.
 
 
-Description : Building a wine quality prediction ML model in Spark over AWS involves several steps. Below is a high-level outline of the process in Java on Ubuntu Linux:
+Description :
 
-1. Setup AWS EC2 Instances:
-     a. Launch 4 EC2 instances for parallel model training.
-     b. Launch 1 EC2 instance for the prediction application.
+1. How to create Spark cluster in AWS
+      User can create spark cluster using EMR console provided by AWS. Please follow steps to create one with 4 ec2 instances
+      1.  Create Key-Pair for EMR cluster using navigation EC2-> Network & Security -> Key-pairs. Use .pem as format. This will download {name of key pair}>.pem file. Keep it safe you will need that to do SSH to EC2 instances.
+     2. Navigate to Amazon EMR console and then, navigate to clusters-> create cluster.
+     3. User can also create spark cluster using aws cli command and cluster status should be 'Waiting' on successful cluster creation.
 
-2.  Install Spark on EC2 Instances:
-      a. Connect to each EC2 instance and install Apache Spark.
-      
-3.  Upload Datasets to S3:
-      a. Upload the 'TrainingDataset.csv' and 'ValidationDataset.csv' to an S3 bucket.
+2. How to train ML model in Spark cluster with 4 ec2 instances in parallel
+   1. Now when cluster is ready to accept jobs, to submit one you can either use step button to add steps or submit manually. To submit manually, Perform SSH to Master of cluster using below command:
+                      ssh -i "ec2key.pem" <<User>>@<<Public IPv4 DNS>>
+   2.  On successful login to master , change to root user by running command:
+                      sudo su
+   3. Submit job using following command:
+                      spark-submit s3://wine-data-12/modeltraining.java
+   4. You can trace status of this job in EMR UI application logs. Once status is succeded a test.model will be created in s3
 
-4.  Implement Spark Application for Model Training:
-       a. Write a Spark application in Java using MLlib to train the wine quality prediction model.
-       b. Read the training dataset from S3.
-       c. Split the dataset for training and validation purposes.
-       d. Train the model using parallel processing on the 4 EC2 instances.
-       e. Tune hyperparameters using the validation dataset.
+3.  How to run trained ML model locally without docker.
+     1. Clone the repository and Make sure you have spark environment setup locally for running this. 
+     2. Place your testdata in 'csv' folder
+        
+4. Run ML model using Docker
+     1. Install docker where you want to run this container
+     2. A public image has been created and posted on DockerHub. Use the command Docker pull dfordeepika/awssparkwineapp to get the image on your machine.
+     3. Place your testdata file in a folder (lets call it directory dirA) , which you will mount with docker container.
+     4. run the docker
 
-5.  Save the Trained Model:
-       a. Save the trained model to a file or a storage system (e.g., HDFS or S3).
 
-6.  Implement Spark Application for Prediction:
-       a. Write a Spark application for prediction using the trained model.
-       b. Read the TestDataset.csv (not provided, but use the validation dataset initially) from S3.
-       c. Perform predictions using the trained model.
 
-7.  Calculate F1 Score:
-      a. Evaluate the performance of the prediction using the F1 score.
-      b. Output the F1 score as the result.
-
-8. Build Docker Container:
-    a. Create a Dockerfile to package the prediction application.
-    b. Include all necessary dependencies, the Spark application JAR, and the trained model.
-
-9. Push Docker Image to a Registry:
-    a. Build the Docker image.
-     
-        docker build -t wine-quality-prediction .
-
-    b. Push the Docker image to a container registry (e.g., Amazon ECR).
-
-        docker run -it wine-quality-prediction java -cp target/your-jar-file.jar WineQualityPrediction
-
-10. Deploy Prediction Application:
-    a. On the single EC2 instance, pull the Docker image.
-    b. Run the Docker container for prediction.
-
-11. Submit Predictions and F1 Score:
-    a. Collect predictions from the prediction application.
-    b. Calculate the F1 score using MLlib.
+  
